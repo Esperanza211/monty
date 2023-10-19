@@ -17,8 +17,8 @@ void print_stack(stack_t **stack)
     }
     printf("\n");
 }
-void execute_opcode(stack_t **stack, unsigned int line_number);
-{
+void execute_opcode(stack_t **stack, unsigned int line_number)
+	{
 	if (strcmp(opcode, "add") == 0)
 {
     stack_add(stack, line_number);
@@ -41,11 +41,9 @@ int main()
 {
 	unsigned int line_number = 0;
     char *opcode[] = {"push", "push", "push", "pop", "pop", "print"};
-
-    for (int i = 0; i < 6; i++)
+	int i;
+    for ( i = 0; i < 6; i++)
     {
 	    execute_opcode(stack, line_number);
     }
 
-    return 0;
-}

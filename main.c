@@ -48,7 +48,6 @@ InterpreterData vars;
    * Returns: EXIT_SUCCESS on success, or EXIT_FAILURE on failure.
   */
   int execute_opcode(char *opcode) {
-    // TODO: Implement this function to execute the given opcode.
   
     return EXIT_SUCCESS;
  }
