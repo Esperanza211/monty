@@ -1,43 +1,47 @@
 #include "monty.h"
 
-/**
- * execute_opcode - Executes the given opcode.
- * @opcode: The opcode to execute.
- *
- * Return: 0 if success, or EXIT_FAILURE on failure.
- */
-int execute_opcode(char *opcode)
+typedef struct vars_t
 {
-	int i = 0;
-    if (opcode[0] == '#')
-        return EXIT_SUCCESS;
+    stack_t *stack;
+    char *format;
+    int line_number;
+} vars_t;
 
-	  while (vars->instruct[i].opcode)
+void print_stack(stack_t **stack)
+{
+    stack_t *temp = *stack;
+    while (temp)
     {
-        if (strcmp(vars->instruct[i].opcode, opcode) == 0)
-        {
-            vars->instruct[i].f(&vars->stack, vars->line_number);
-            return EXIT_SUCCESS;
-        }
-
-        i++;
+        printf("%d ", temp->data);
+        temp = temp->next;
     }
-    return EXIT_FAILURE;
+    printf("\n");
 }
 
-/**
- * set_data_structure - Sets the data structure format (stack or queue).
- * @stack: The head of the stack.
- * @line_number: The line number where the opcode exists.
- * @format: The format to set ("LIFO" for stack, "FIFO" for queue).
- *
- * Return: (void)
- */
-void set_data_structure(stack_t **stack, unsigned int line_number, const char *format)
+void execute_opcode(char *opcode)
 {
-    (void) stack;
-    (void) line_number;
-
-    vars->format = format;
+    if (strcmp(opcode, "push") == 0)
+    {
+        push(&vars.stack, 5);
+    }
+    else if (strcmp(opcode, "pop") == 0)
+    {
+        pop(&vars.stack);
+    }
+    else if (strcmp(opcode, "print") == 0)
+    {
+        print_stack(&vars.stack);
+    }
 }
 
+int main()
+{
+    char *opcode[] = {"push", "push", "push", "pop", "pop", "print"};
+
+    for (int i = 0; i < 6; i++)
+    {
+        execute_opcode(opcode[i]);
+    }
+
+    return 0;
+}
