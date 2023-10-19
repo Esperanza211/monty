@@ -5,20 +5,25 @@
  * @stack: Pointer to a pointer pointing to top node of the stack.
  * @line_number: Interger representing the line number of of the opcode.
  */
-void print_character(stack_t **stack, unsigned int line_number)
+int print_character(stack_t **stack, unsigned int line_number)
 {
+    stack_t *tmp;
     int ascii;
 
-    if (stack == NULL || *stack == NULL) {
-        string_err(11, line_number);
+    if (stack == NULL || *stack == NULL || (*stack)->next == NULL)
+    {
+        printf("Error: invalid operation at line %u.\n", line_number);
+        return (-1);
     }
-
-    ascii = (*stack)->n;
-    if (ascii < 0 || ascii > 127) {
-        string_err(10, line_number);
+    tmp = (*stack)->next;
+    ascii = tmp->n;
+    if (ascii <= 0 || ascii > 127)
+    {
+        printf("Error: invalid value at line %u.\n", line_number);
+        return (-1);
     }
-
     printf("%c\n", ascii);
+    return (0);
 }
 
 /**

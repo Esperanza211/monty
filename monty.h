@@ -38,6 +38,11 @@ typedef struct instruction_s
         void (*f)(stack_t **stack, unsigned int line_number);
 } instruction_t;
 
+/* test0 */
+stack_node_t *stack_push(stack_node_t **top, int value);
+int stack_pop(stack_node_t **top) ;
+void stack_pall(stack_node_t *top);
+/*..*/
 extern stack_t *head;
 typedef void (*op_func)(stack_t **, unsigned int);
 
