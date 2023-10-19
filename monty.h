@@ -38,58 +38,46 @@ typedef struct instruction_s
         void (*f)(stack_t **stack, unsigned int line_number);
 } instruction_t;
 
-/**
- * struct Data - struct of datas to be used as global variable
- * @buff: getline buffer
- * @size: getline buffer size
- * @stream: file stream
- * @line_number: line number
- * @stack: head of the stack
- * @instruct: array of instructions
- */
-typedef struct InterpreterData
-{
-    char *buff;
-    size_t size;
-    FILE *stream;
-    int line_number;
-    stack_t *stack;
-    instruction_t instruct[18];
-    char *format; /* LIFO & FIFO */
-} InterpreterData;
+extern stack_t *head;
+typedef void (*op_func)(stack_t **, unsigned int);
 
-InterpreterData *vars = NULL;
+/*file operations*/
+void open_file(char *file_name);
+int parse_line(char *buffer, int line_number, int format);
+void read_file(FILE *);
+int len_chars(FILE *);
+void find_func(char *, char *, int, int);
 
-/* execute_operations */
-void execute_opcode(stack_t **stack, unsigned int line_number);
-void set_data_structure(stack_t **stack, unsigned int line_number, const char *format);
+/*Stack operations*/
+stack_t *create_node(int n);
+void free_nodes(void);
+void print_stack(stack_t **, unsigned int);
+void add_to_stack(stack_t **, unsigned int);
+void add_to_queue(stack_t **, unsigned int);
 
-/* code0_functions */
-void push(stack_t **stack, unsigned int line_number);
-void pall(stack_t **stack);
-void pint(stack_t **stack, unsigned int line_number);
-void pop(stack_t **stack, unsigned int line_number);
-void swap(stack_t **stack, unsigned int line_number);
+void call_fun(op_func, char *, char *, int, int);
 
-/* 1_opcode */
-void stack_add(stack_t **stack, unsigned int line_number);
-void stack_nop(stack_t **stack, unsigned int line_number);
-void stack_sub(stack_t **stack, unsigned int line_number);
-void stack_divide(stack_t **stack, unsigned int line_number);
-void stack_multiply(stack_t **stack, unsigned int line_number);
+void print_top(stack_t **, unsigned int);
+void pop_top(stack_t **, unsigned int);
+void nop(stack_t **, unsigned int);
+void swap_nodes(stack_t **, unsigned int);
 
-/* 2_opcode */
-void stack_mod(stack_t **stack, unsigned int line_number);
-void stack_print_char(stack_t **stack, unsigned int line_number);
-void stack_print_string(stack_t **stack, unsigned int line_number);
-void stack_rotate_left(stack_t **stack, unsigned int line_number);
-void stack_rotate_right(stack_t **stack, unsigned int line_number);
+/*Math operations with nodes*/
+void add_nodes(stack_t **, unsigned int);
+void sub_nodes(stack_t **, unsigned int);
+void div_nodes(stack_t **, unsigned int);
+void mul_nodes(stack_t **, unsigned int);
+void mod_nodes(stack_t **, unsigned int);
 
-/* tools.c */
-void initialize_vars(void);
-void instruct_init(void);
-void free_all(void);
-int is_digit(const char *str);
-void add_node(stack_t **head, const int n);
+/*String operations*/
+void print_char(stack_t **, unsigned int);
+void print_str(stack_t **, unsigned int);
+void rotl(stack_t **, unsigned int);
 
-#endif /* MONTY_H */
+/*Error hanlding*/
+void err(int error_code, ...);
+void more_err(int error_code, ...);
+void string_err(int error_code, ...);
+void rotr(stack_t **, unsigned int);
+
+#endif
