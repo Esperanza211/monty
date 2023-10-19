@@ -1,137 +1,125 @@
 #include "monty.h"
 
-typedef struct stack_t
+stack_t *head = NULL;
+
+/**
+ * open_file - Opens a file and reads it line by line.
+ * @file_name: The path to the file to open.
+ *
+ * Return: void
+ */
+void open_file(char *file_name)
 {
-	int n;
-	struct stack_t *next;
-	struct stack_t *prev;
-} stack_t;
+    FILE *fd = fopen(file_name, "r");
+    if (fd == NULL) {
+        err(2, file_name);
+    }
 
-void free_all(void);
-
-void add_node(stack_t **head, const int n);
-void add_node_end(stack_t **head, const int n);
-
-void print_error(char *s)
-{
-	fprintf(stderr, "Error: %s\n", s);
-	free_all();
-	exit(EXIT_FAILURE);
+    read_file(fd);
+    fclose(fd);
 }
 
-int _isdigit(char *str)
+/**
+ * read_file - Reads a file line by line and parses each line into tokens.
+ * @fd: A pointer to the file descriptor.
+ *
+ * Return: void
+ */
+void read_file(FILE *fd)
 {
-	int i;
+    int line_number;
+    char *buffer = NULL;
+    size_t len = 0;
 
-	for (i = 0; str[i]; i++)
-	{
-		if (i == 0 && str[i] == '-' && str[i + 1])
-			continue;
-		if (str[i] < 48 || str[i] > 57)
-			return (EXIT_FAILURE);
-	}
-	return (EXIT_SUCCESS);
+    for (line_number = 1; getline(&buffer, &len, fd) != -1; line_number++) {
+        parse_line(buffer, line_number);
+    }
+
+    free(buffer);
 }
 
-int main(int argc, char *argv[])
+/**
+ * parse_line - Parses a line from the file into tokens and calls the appropriate function
+ * for the opcode.
+ * @buffer: The line to parse.
+ * @line_number: The line number of the line being parsed.
+ *
+ * Return: void
+ */
+void parse_line(char *buffer, int line_number)
 {
-	char buffer[1024];
-	char *buff, *tok;
-	FILE *stream;
-	stack_t *stack, *queue;
+    char *opcode, *value;
+    const char *delim = "\n ";
 
-	if (argc != 2)
-	{
-		fprintf(stderr, "Usage: %s <file>\n", argv[0]);
-		return (EXIT_FAILURE);
-	}
+    opcode = strtok(buffer, delim);
+    if (opcode == NULL) {
+        return;
+    }
 
-	stream = fopen(argv[1], "r");
-	if (!stream)
-	{
-		fprintf(stderr, "Error: unable to open file '%s'\n", argv[1]);
-		return (EXIT_FAILURE);
-	}
+    value = strtok(NULL, delim);
 
-	stack = NULL;
-	queue = NULL;
-
-	while (fgets(buffer, sizeof(buffer), stream))
-	{
-		buff = buffer;
-		tok = strtok(buff, " ");
-
-		if (tok[0] == 'C' || tok[0] == 'L')
-		{
-			if (_isdigit(tok + 1) == EXIT_FAILURE)
-				print_error("invalid argument for 'C' or 'L' command");
-
-			if (tok[0] == 'C')
-				add_node(&stack, atoi(tok + 1));
-			else
-				add_node_end(&queue, atoi(tok + 1));
-		}
-		else
-			print_error("unknown command");
-	}
-
-	fclose(stream);
-	free_all();
-	return (EXIT_SUCCESS);
+    find_func(opcode, value, line_number);
 }
 
-void free_all(void)
+/**
+ * find_func - Finds the appropriate function for the opcode and calls it.
+ * @opcode: The opcode to find the function for.
+ * @value: The value associated with the opcode.
+ * @line_number: The line number of the opcode.
+ *
+ * Return: void
+ */
+void find_func(char *opcode, char *value, int line_number)
 {
-	stack_t *tmp;
+    int i;
 
-	while (stack)
-	{
-		tmp = stack;
-		stack = stack->next;
-		free(tmp);
-	}
-	stack = NULL;
+    for (i = 0; instructions[i].opcode != NULL; i++) {
+        if (strcmp(opcode, instructions[i].opcode) == 0) {
+            instructions[i].f(head, value, line_number);
+            return;
+        }
+    }
 
-	while (queue)
-	{
-		tmp = queue;
-		queue = queue->next;
-		free(tmp);
-	}
-	queue = NULL;
+    err(3, line_number, opcode);
 }
 
-void add_node(stack_t **head, const int n)
+/**
+ * call_fun - Calls the required function.
+ * @func: Pointer to the function that is about to be called.
+ * @op: string representing the opcode.
+ * @val: string representing a numeric value.
+ * @ln: line numeber for the instruction.
+ * @format: Format specifier. If 0 Nodes will be entered as a stack.
+ * if 1 nodes will be entered as a queue.
+ */
+void call_fun(op_func func, char *op, char *val, int ln, int format)
 {
-	stack_t *new;
+    stack_t *node;
+    int flag;
+    int i;
 
-	new = malloc(sizeof(stack_t));
-	if (!new)
-	{
-		fprintf(stderr, "Error: malloc failed\n");
-		free_all();
-		exit(EXIT_FAILURE);
-	}
-	new->n = n;
-	new->next = NULL;
-	new->prev = NULL;
-
-	new->next = *head;
-	if (*head)
-	{
-		(*head)->prev = new;
-	}
-	*head = new;
-}
-
-void add_node_end(stack_t **head, const int n)
-{
-	stack_t *current;
-
-	current = *head;
-	while (current->next)
-	{
-		current = current->next;
-	}
-	add_node(head, n);
+    flag = 1;
+    if (strcmp(op, "push") == 0) {
+        if (val != NULL && val[0] == '-') {
+            val = val + 1;
+            flag = -1;
+        }
+        if (val == NULL) {
+            err(5, ln);
+        }
+        for (i = 0; val[i] != '\0'; i++) {
+            if (isdigit(val[i]) == 0) {
+                err(5, ln);
+            }
+        }
+        node = create_node(atoi(val) * flag);
+        if (format == 0) {
+            func(&node, ln);
+        }
+        if (format == 1) {
+            add_to_queue(&node, ln);
+        }
+    } else {
+        func(&head, ln);
+    }
 }
