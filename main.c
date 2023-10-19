@@ -1,105 +1,93 @@
 #include "monty.h"
-
-/**
- * stack_mod - Compute the remainder of the division of the second top element of
- * the stack by the top element of the stack.
+   
+   Data vars;
+   
+  /**
+    * initialize_vars - Initializes the global variables.
+   */
+   void initialize_vars(void) {
+     vars.stream = NULL;
+    vars.buff = NULL;
+    vars.size = 0;
+    vars.line_number = 0;
+  }
+  
+  /**
+   * open_file - Opens the Monty bytecode file.
+   * @filename: The name of the file to open.
+   *
+   * Returns: A pointer to the file stream, or NULL on error.
+   */
+  FILE *open_file(const char *filename) {
+    vars.stream = fopen(filename, "r");
+    if (!vars.stream) {
+      fprintf(stderr, "Error: Can't open file %s\n", filename);
+      exit(EXIT_FAILURE);
+   }
+    return vars.stream;
+  }
+  
+  /**
+   * get_opcode - Gets the next opcode from the Monty bytecode file.
+   *
+   * Returns: A pointer to the opcode string, or NULL on EOF.
  */
-void stack_mod(stack_t **stack, unsigned int line_number)
-{
-	if (!(*stack) || !(*stack)->next || (*stack)->n == 0)
-	{
-		if (*stack && (*stack)->next)
-			fprintf(stderr, "L%u: Division by zero\n", line_number);
-		else
-			fprintf(stderr, "L%u: Can't mod, stack too short\n", line_number);
-		free_all();
-		fclose(vars.stream);
-		exit(EXIT_FAILURE);
-	}
-	else
-	{
-		(*stack)->next->n = (*stack)->next->n % (*stack)->n;
-		pop(stack, line_number);
-	}
-}
-
-/**
- * stack_print_char - Print the character at the top of the stack, followed by a new line.
- */
-void stack_print_char(stack_t **stack, unsigned int line_number)
-{
-	if (!(*stack))
-	{
-		fprintf(stderr, "L%u: Can't pchar, stack is empty\n", line_number);
-		free_all();
-		fclose(vars.stream);
-		exit(EXIT_FAILURE);
-	}
-	if ((*stack)->n < 0 || (*stack)->n > 127)
-	{
-		fprintf(stderr, "L%u: Can't pchar, value is out of range\n", line_number);
-		free_all();
-		fclose(vars.stream);
-		exit(EXIT_FAILURE);
-	}
-	printf("%c\n", (*stack)->n);
-}
-
-/**
- * stack_print_string - Print the string starting at the top of the stack, followed by a new line.
- */
-void stack_print_string(stack_t **stack, unsigned int line_number)
-{
-	stack_t *tmp = *stack;
-	(void) line_number;
-
-	while (tmp)
-	{
-		if (tmp->n <= 0 || tmp->n > 127)
-			break;
-		printf("%c", tmp->n);
-		tmp = tmp->next;
-	}
-	printf("\n");
-}
-
-/**
- * stack_rotate_left - Rotate the stack to the top.
- */
-void stack_rotate_left(stack_t **stack, unsigned int line_number)
-{
-	stack_t *tmp = *stack;
-	(void) line_number;
-
-	if (*stack && (*stack)->next)
-	{
-		while (tmp->next)
-			tmp = tmp->next;
-		tmp->next = *stack;
-		*stack = (*stack)->next;
-		(*stack)->prev = NULL;
-		tmp->next->next = NULL;
-		tmp->next->prev = tmp;
-	}
-}
-
-/**
- * stack_rotate_right - Rotate the stack to the bottom.
- */
-void stack_rotate_right(stack_t **stack, unsigned int line_number)
-{
-	stack_t *tmp = *stack;
-	(void) line_number;
-
-	if (*stack && (*stack)->next)
-	{
-		while (tmp->next)
-			tmp = tmp->next;
-		tmp->next = *stack;
-		tmp->prev->next = NULL;
-		tmp->prev = NULL;
-		(*stack)->prev = tmp;
-		(*stack) = tmp;
-	}
-}
-
+  char *get_opcode(void) {
+    char *opcode = strtok(vars.buff, " \t\n");
+    if (!opcode) {
+     vars.line_number++;
+      return NULL;
+    }
+    return opcode;
+  }
+  
+  /**
+   * execute_opcode - Executes the given opcode.
+   * @opcode: The opcode to execute.
+   *
+   * Returns: EXIT_SUCCESS on success, or EXIT_FAILURE on failure.
+  */
+  int execute_opcode(char *opcode) {
+    // TODO: Implement this function to execute the given opcode.
+  
+    return EXIT_SUCCESS;
+ }
+  
+  /**
+   * free_all - Frees all allocated resources.
+   */
+  void free_all(void) {
+    fclose(vars.stream);
+    free(vars.buff);
+  }
+  
+  /**
+   * main - Entry point for the program.
+   * @argc: Number of arguments.
+ * @argv: Array of arguments.
+   *
+   * Returns: EXIT_SUCCESS on success, or EXIT_FAILURE on failure.
+   */
+  int main(int argc, char **argv) {
+    if (argc != 2) {
+      fprintf(stderr, "USAGE: monty file\n");
+      exit(EXIT_FAILURE);
+    }
+ 
+   initialize_vars();
+    open_file(argv[1]);
+  
+    while (get_opcode()) {
+      if (execute_opcode(opcode) == EXIT_FAILURE) {
+        fprintf(stderr, "L%u: unknown instruction %s\n", vars.line_number, opcode);
+        free_all();
+        fclose(vars.stream);
+       exit(EXIT_FAILURE);
+      }
+    }
+  
+    fclose(vars.stream);
+    free_all();
+  
+    return EXIT_SUCCESS;
+  }
