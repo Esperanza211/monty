@@ -1,99 +1,137 @@
 #include "monty.h"
 
-/**
- * initialize_vars - Initializes global variables.
- */
-void initialize_vars(void)
+typedef struct stack_t
 {
-    vars->buff = NULL;
-    vars->size = 0;
-    vars->line_number = 1;
-    vars->stack = NULL;
-    vars->format = "LIFO"; /* stack */
+	int n;
+	struct stack_t *next;
+	struct stack_t *prev;
+} stack_t;
 
-    instruct_init();
+void free_all(void);
+
+void add_node(stack_t **head, const int n);
+void add_node_end(stack_t **head, const int n);
+
+void print_error(char *s)
+{
+	fprintf(stderr, "Error: %s\n", s);
+	free_all();
+	exit(EXIT_FAILURE);
 }
 
-/**
- * instruct_init - Initializes the instruction array.
- */
-void instruct_init(void)
+int _isdigit(char *str)
 {
-    const char *opcodes[] = {
-        "push", "pall", "pint", "pop", "swap", "add", "nop",
-        "sub", "div", "mul", "mod", "pchar", "pstr",
-        "rotl", "rotr", "stack", "queue", NULL
-    };
-    void (*functions[]) = {
-        push, pall, pint, pop, swap, add, nop,
-        sub, divid, mul, mod, pchar, pstr,
-        rotl, rotr, stack, queue, NULL
-    };
+	int i;
 
-    for (int i = 0; opcodes[i] != NULL; i++)
-    {
-        vars->instruct[i].opcode = opcodes[i];
-        vars->instruct[i].f = functions[i];
-    }
+	for (i = 0; str[i]; i++)
+	{
+		if (i == 0 && str[i] == '-' && str[i + 1])
+			continue;
+		if (str[i] < 48 || str[i] > 57)
+			return (EXIT_FAILURE);
+	}
+	return (EXIT_SUCCESS);
 }
 
-/**
- * free_all - Frees allocated memory.
- */
+int main(int argc, char *argv[])
+{
+	char buffer[1024];
+	char *buff, *tok;
+	FILE *stream;
+	stack_t *stack, *queue;
+
+	if (argc != 2)
+	{
+		fprintf(stderr, "Usage: %s <file>\n", argv[0]);
+		return (EXIT_FAILURE);
+	}
+
+	stream = fopen(argv[1], "r");
+	if (!stream)
+	{
+		fprintf(stderr, "Error: unable to open file '%s'\n", argv[1]);
+		return (EXIT_FAILURE);
+	}
+
+	stack = NULL;
+	queue = NULL;
+
+	while (fgets(buffer, sizeof(buffer), stream))
+	{
+		buff = buffer;
+		tok = strtok(buff, " ");
+
+		if (tok[0] == 'C' || tok[0] == 'L')
+		{
+			if (_isdigit(tok + 1) == EXIT_FAILURE)
+				print_error("invalid argument for 'C' or 'L' command");
+
+			if (tok[0] == 'C')
+				add_node(&stack, atoi(tok + 1));
+			else
+				add_node_end(&queue, atoi(tok + 1));
+		}
+		else
+			print_error("unknown command");
+	}
+
+	fclose(stream);
+	free_all();
+	return (EXIT_SUCCESS);
+}
+
 void free_all(void)
 {
-    if (vars->buff)
-        free(vars->buff);
+	stack_t *tmp;
 
-    while (vars->stack)
-        pop(&vars->stack, 0);
+	while (stack)
+	{
+		tmp = stack;
+		stack = stack->next;
+		free(tmp);
+	}
+	stack = NULL;
+
+	while (queue)
+	{
+		tmp = queue;
+		queue = queue->next;
+		free(tmp);
+	}
+	queue = NULL;
 }
 
-/**
- * is_digit - Checks if a string is a digit.
- * @str: The string to check.
- *
- * Return: 1 if it's a digit, 0 otherwise.
- */
-int is_digit(const char *str)
+void add_node(stack_t **head, const int n)
 {
-    if (!str)
-        return 0;
+	stack_t *new;
 
-    if (*str == '-')
-        str++;  /* Skip the negative sign if present */
+	new = malloc(sizeof(stack_t));
+	if (!new)
+	{
+		fprintf(stderr, "Error: malloc failed\n");
+		free_all();
+		exit(EXIT_FAILURE);
+	}
+	new->n = n;
+	new->next = NULL;
+	new->prev = NULL;
 
-    while (*str)
-    {
-        if (*str < '0' || *str > '9')
-            return 0;
-        str++;
-    }
-
-    return 1;
+	new->next = *head;
+	if (*head)
+	{
+		(*head)->prev = new;
+	}
+	*head = new;
 }
 
-/**
- * add_node - Adds an element to the stack.
- * @head: The top of the stack.
- * @n: The element to add.
- */
-void add_node(stack_t **head, const int data)
+void add_node_end(stack_t **head, const int n)
 {
-    stack_t *new = malloc(sizeof(stack_t));
-    if (!new)
-    {
-        fprintf(stderr, "Error: malloc failed\n");
-        free_all();
-        fclose(vars->stream);
-        exit(EXIT_FAILURE);
-    }
-    new->data = data;
-    new->next = *head;
-    new->prev = NULL;
+	stack_t *current;
 
-    if (*head)
-        (*head)->prev = new;
-    *head = new;
+	current = *head;
+	while (current->next)
+	{
+		current = current->next;
+	}
+	add_node(head, n);
 }
-
