@@ -14,7 +14,7 @@ void stack_add(stack_t **stack, unsigned int line_number)
 	}
 	else
 	{
-		(*stack)->next->n += (*stack)->n;
+		(*stack)->next->data += (*stack)->data;
 		pop(stack, line_number);
 	}
 }
@@ -42,7 +42,7 @@ void stack_sub(stack_t **stack, unsigned int line_number)
 	}
 	else
 	{
-		(*stack)->next->n -= (*stack)->n;
+		(*stack)->next->data -= (*stack)->data;
 		pop(stack, line_number);
 	}
 }
@@ -52,7 +52,7 @@ void stack_sub(stack_t **stack, unsigned int line_number)
  */
 void stack_divide(stack_t **stack, unsigned int line_number)
 {
-	if (!(*stack) || !(*stack)->next || (*stack)->n == 0)
+	if (!(*stack) || !(*stack)->next || (*stack)->data == 0)
 	{
 		if (*stack && (*stack)->next)
 			fprintf(stderr, "L%u: Division by zero\n", line_number);
@@ -64,7 +64,7 @@ void stack_divide(stack_t **stack, unsigned int line_number)
 	}
 	else
 	{
-		(*stack)->next->n /= (*stack)->n;
+		(*stack)->next->data /= (*stack)->data;
 		pop(stack, line_number);
 	}
 }
@@ -83,7 +83,7 @@ void stack_multiply(stack_t **stack, unsigned int line_number)
 	}
 	else
 	{
-		(*stack)->next->n *= (*stack)->n;
+		(*stack)->next->data *= (*stack)->data;
 		pop(stack, line_number);
 	}
 }

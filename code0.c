@@ -32,7 +32,7 @@ void pall(stack_t **stack) {
   stack_t *ptr = *stack;
 
   while (ptr) {
-    printf("%d\n", ptr->n);
+    printf("%d\n", ptr->data);
     ptr = ptr->next;
   }
 }
@@ -50,7 +50,7 @@ void pint(stack_t **stack, unsigned int line_number) {
     exit(EXIT_FAILURE);
   }
 
-  printf("%d\n", (*stack)->n);
+  printf("%d\n", (*stack)->data);
 }
 
 /**
@@ -90,8 +90,8 @@ void swap(stack_t **stack, unsigned int line_number) {
     fclose(vars->stream);
     exit(EXIT_FAILURE);
   } else {
-    tmp = (*stack)->n;
-    (*stack)->n = (*stack)->next->n;
-    (*stack)->next->n = tmp;
+    tmp = (*stack)->data;
+    (*stack)->data = (*stack)->next->data;
+    (*stack)->next->data = tmp;
   }
 }

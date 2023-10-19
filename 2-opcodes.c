@@ -6,7 +6,7 @@
  */
 void stack_mod(stack_t **stack, unsigned int line_number)
 {
-	if (!(*stack) || !(*stack)->next || (*stack)->n == 0)
+	if (!(*stack) || !(*stack)->next || (*stack)->data == 0)
 	{
 		if (*stack && (*stack)->next)
 			fprintf(stderr, "L%u: Division by zero\n", line_number);
@@ -18,7 +18,7 @@ void stack_mod(stack_t **stack, unsigned int line_number)
 	}
 	else
 	{
-		(*stack)->next->n = (*stack)->next->n % (*stack)->n;
+		(*stack)->next->data = (*stack)->next->data % (*stack)->data;
 		pop(stack, line_number);
 	}
 }
@@ -35,14 +35,14 @@ void stack_print_char(stack_t **stack, unsigned int line_number)
 		fclose(vars->stream);
 		exit(EXIT_FAILURE);
 	}
-	if ((*stack)->n < 0 || (*stack)->n > 127)
+	if ((*stack)->data < 0 || (*stack)->data > 127)
 	{
 		fprintf(stderr, "L%u: Can't pchar, value is out of range\n", line_number);
 		free_all();
 		fclose(vars->stream);
 		exit(EXIT_FAILURE);
 	}
-	printf("%c\n", (*stack)->n);
+	printf("%c\n", (*stack)->data);
 }
 
 /**
@@ -55,9 +55,9 @@ void stack_print_string(stack_t **stack, unsigned int line_number)
 
 	while (tmp)
 	{
-		if (tmp->n <= 0 || tmp->n > 127)
+		if (tmp->data <= 0 || tmp->data > 127)
 			break;
-		printf("%c", tmp->n);
+		printf("%c", tmp->data);
 		tmp = tmp->next;
 	}
 	printf("\n");

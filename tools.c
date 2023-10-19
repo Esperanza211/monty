@@ -78,7 +78,7 @@ int is_digit(const char *str)
  * @head: The top of the stack.
  * @n: The element to add.
  */
-void add_node(stack_t **head, const int n)
+void add_node(stack_t **head, const int data)
 {
     stack_t *new = malloc(sizeof(stack_t));
     if (!new)
@@ -88,7 +88,7 @@ void add_node(stack_t **head, const int n)
         fclose(vars->stream);
         exit(EXIT_FAILURE);
     }
-    new->n = n;
+    new->data = data;
     new->next = *head;
     new->prev = NULL;
 
