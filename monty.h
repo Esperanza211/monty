@@ -22,6 +22,7 @@ typedef struct stack_s
 {
     int data;
     struct stack_s *next;
+    struct stack_s *prev;
 } stack_t;
 /**
  * struct instruction_s - opcode and its function
@@ -60,7 +61,7 @@ typedef struct InterpreterData
 InterpreterData *vars = NULL;
 
 /* execute_operations */
-int execute_opcode(char *opcode);
+void execute_opcode(stack_t **stack, unsigned int line_number);
 void set_data_structure(stack_t **stack, unsigned int line_number, const char *format);
 
 /* code0_functions */
