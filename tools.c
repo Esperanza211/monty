@@ -5,11 +5,11 @@
  */
 void initialize_vars(void)
 {
-    vars.buff = NULL;
-    vars.size = 0;
-    vars.line_number = 1;
-    vars.stack = NULL;
-    vars.format = "LIFO"; /* stack */
+    vars->buff = NULL;
+    vars->size = 0;
+    vars->line_number = 1;
+    vars->stack = NULL;
+    vars->format = "LIFO"; /* stack */
 
     instruct_init();
 }
@@ -32,8 +32,8 @@ void instruct_init(void)
 
     for (int i = 0; opcodes[i] != NULL; i++)
     {
-        vars.instruct[i].opcode = opcodes[i];
-        vars.instruct[i].f = functions[i];
+        vars->instruct[i].opcode = opcodes[i];
+        vars->instruct[i].f = functions[i];
     }
 }
 
@@ -42,11 +42,11 @@ void instruct_init(void)
  */
 void free_all(void)
 {
-    if (vars.buff)
-        free(vars.buff);
+    if (vars->buff)
+        free(vars->buff);
 
-    while (vars.stack)
-        pop(&vars.stack, 0);
+    while (vars->stack)
+        pop(&vars->stack, 0);
 }
 
 /**
@@ -85,7 +85,7 @@ void add_node(stack_t **head, const int n)
     {
         fprintf(stderr, "Error: malloc failed\n");
         free_all();
-        fclose(vars.stream);
+        fclose(vars->stream);
         exit(EXIT_FAILURE);
     }
     new->n = n;

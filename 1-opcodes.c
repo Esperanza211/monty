@@ -9,7 +9,7 @@ void stack_add(stack_t **stack, unsigned int line_number)
 	{
 		fprintf(stderr, "L%u: Can't add, stack too short\n", line_number);
 		free_all();
-		fclose(vars.stream);
+		fclose(vars->stream);
 		exit(EXIT_FAILURE);
 	}
 	else
@@ -37,7 +37,7 @@ void stack_sub(stack_t **stack, unsigned int line_number)
 	{
 		fprintf(stderr, "L%u: Can't subtract, stack too short\n", line_number);
 		free_all();
-		fclose(vars.stream);
+		fclose(vars->stream);
 		exit(EXIT_FAILURE);
 	}
 	else
@@ -59,7 +59,7 @@ void stack_divide(stack_t **stack, unsigned int line_number)
 		else
 			fprintf(stderr, "L%u: Can't divide, stack too short\n", line_number);
 		free_all();
-		fclose(vars.stream);
+		fclose(vars->stream);
 		exit(EXIT_FAILURE);
 	}
 	else
@@ -78,7 +78,7 @@ void stack_multiply(stack_t **stack, unsigned int line_number)
 	{
 		fprintf(stderr, "L%u: Can't multiply, stack too short\n", line_number);
 		free_all();
-		fclose(vars.stream);
+		fclose(vars->stream);
 		exit(EXIT_FAILURE);
 	}
 	else

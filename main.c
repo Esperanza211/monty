@@ -1,6 +1,6 @@
 #include "monty.h"
    
-   Data vars;
+InterpreterData vars;
    
   /**
     * initialize_vars - Initializes the global variables.

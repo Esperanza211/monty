@@ -13,7 +13,7 @@ void stack_mod(stack_t **stack, unsigned int line_number)
 		else
 			fprintf(stderr, "L%u: Can't mod, stack too short\n", line_number);
 		free_all();
-		fclose(vars.stream);
+		fclose(vars->stream);
 		exit(EXIT_FAILURE);
 	}
 	else
@@ -32,14 +32,14 @@ void stack_print_char(stack_t **stack, unsigned int line_number)
 	{
 		fprintf(stderr, "L%u: Can't pchar, stack is empty\n", line_number);
 		free_all();
-		fclose(vars.stream);
+		fclose(vars->stream);
 		exit(EXIT_FAILURE);
 	}
 	if ((*stack)->n < 0 || (*stack)->n > 127)
 	{
 		fprintf(stderr, "L%u: Can't pchar, value is out of range\n", line_number);
 		free_all();
-		fclose(vars.stream);
+		fclose(vars->stream);
 		exit(EXIT_FAILURE);
 	}
 	printf("%c\n", (*stack)->n);

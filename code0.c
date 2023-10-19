@@ -12,12 +12,12 @@ void push(stack_t **stack, unsigned int line_number) {
   if (number == NULL || !isdigit(number)) {
     fprintf(stderr, "L%u: usage: push integer\n", line_number);
     free_all();
-    fclose(vars.stream);
+    fclose(vars->stream);
     exit(EXIT_FAILURE);
   }
 
-  if (strcmp(vars.format, "FIFO") == 0) /* Queue */ {
-    add_node_end(stack, atoi(number));
+  if (strcmp(vars->format, "FIFO") == 0) /* Queue */ {
+    add_node(stack, atoi(number));
   } else /* Stack */ {
     add_node(stack, atoi(number));
   }
@@ -28,7 +28,7 @@ void push(stack_t **stack, unsigned int line_number) {
  * @stack: The head of the stack.
  * @line_number: The line number where the opcode exists.
  */
-void pall(stack_t **stack, unsigned int line_number) {
+void pall(stack_t **stack) {
   stack_t *ptr = *stack;
 
   while (ptr) {
@@ -46,7 +46,7 @@ void pint(stack_t **stack, unsigned int line_number) {
   if (!*stack) {
     fprintf(stderr, "L%u: can't pint, stack empty\n", line_number);
     free_all();
-    fclose(vars.stream);
+    fclose(vars->stream);
     exit(EXIT_FAILURE);
   }
 
@@ -62,7 +62,7 @@ void pop(stack_t **stack, unsigned int line_number) {
   if (!*stack) {
     fprintf(stderr, "L%u: can't pop an empty stack\n", line_number);
     free_all();
-    fclose(vars.stream);
+    fclose(vars->stream);
     exit(EXIT_FAILURE);
   }
 
@@ -87,7 +87,7 @@ void swap(stack_t **stack, unsigned int line_number) {
   if (!(*stack) || !(*stack)->next) {
     fprintf(stderr, "L%u: can't swap, stack too short\n", line_number);
     free_all();
-    fclose(vars.stream);
+    fclose(vars->stream);
     exit(EXIT_FAILURE);
   } else {
     tmp = (*stack)->n;
