@@ -75,7 +75,7 @@ void stack_rotate_left(stack_t **stack, unsigned int line_number)
 	{
 		while (tmp->next)
 			tmp = tmp->next;
-		tmp->next = *stack;
+		tmp->next = (*stack);
 		*stack = (*stack)->next;
 		(*stack)->prev = NULL;
 		tmp->next->next = NULL;
