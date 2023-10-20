@@ -1,125 +1,135 @@
 #include "monty.h"
 
-stack_t *head = NULL;
+/**
+ * init_instructions - Initialize the instruction set.
+ *
+ * Return: 0 if success, otherwise return EXIT_FAILURE
+ */
+int init_instructions(void)
+{
+    const instruction_t instructions[] = {
+        {"push", push},
+        {"pall", pall},
+        {"pint", pint},
+        {"pop", pop},
+        {"swap", swap},
+        {"add", add},
+        {"nop", nop},
+        {"sub", sub},
+        {"div", divid},
+        {"mul", mul},
+        {"mod", mod},
+        {"pchar", pchar},
+        {"pstr", pstr},
+        {"rotl", rotl},
+        {"rotr", rotr},
+        {"stack", stack},
+        {"queue", queue},
+        {NULL, NULL}
+    };
+
+    for (int i = 0; instructions[i].opcode; i++) {
+        vars.instruct[i] = instructions[i];
+    }
+
+    return 0;
+}
 
 /**
- * open_file - Opens a file and reads it line by line.
- * @file_name: The path to the file to open.
+ * free_all - Free allocated memory.
  *
  * Return: void
  */
-void open_file(char *file_name)
+void free_all(void)
 {
-    FILE *fd = fopen(file_name, "r");
-    if (fd == NULL) {
-        err(2, file_name);
+    if (vars.buff)
+        free(vars.buff);
+    if (vars.stack)
+    {
+        while (vars.stack)
+        {
+            stack_t *temp = vars.stack;
+            vars.stack = vars.stack->next;
+            free(temp);
+        }
     }
-
-    read_file(fd);
-    fclose(fd);
 }
 
 /**
- * read_file - Reads a file line by line and parses each line into tokens.
- * @fd: A pointer to the file descriptor.
+ * is_integer - Check if a string is an integer.
+ * @str: String to check.
  *
- * Return: void
+ * Return: 1 if it's an integer, 0 otherwise.
  */
-void read_file(FILE *fd)
+int is_integer(const char *str)
 {
-    int line_number;
-    char *buffer = NULL;
-    size_t len = 0;
+    if (!str || *str == '\0')
+        return 0;
 
-    for (line_number = 1; getline(&buffer, &len, fd) != -1; line_number++) {
-        parse_line(buffer, line_number);
+    if (*str == '-' || *str == '+')
+        str++;
+
+    while (*str)
+    {
+        if (*str < '0' || *str > '9')
+            return 0;
+        str++;
     }
 
-    free(buffer);
+    return 1;
 }
 
 /**
- * parse_line - Parses a line from the file into tokens and calls the appropriate function
- * for the opcode.
- * @buffer: The line to parse.
- * @line_number: The line number of the line being parsed.
+ * push_value - Push a value onto the stack.
+ * @value: Value to push.
  *
- * Return: void
+ * Return: 0 if success, otherwise return EXIT_FAILURE.
  */
-void parse_line(char *buffer, int line_number)
+int push_value(int value)
 {
-    char *opcode, *value;
-    const char *delim = "\n ";
-
-    opcode = strtok(buffer, delim);
-    if (opcode == NULL) {
-        return;
+    stack_t *new_node = malloc(sizeof(stack_t));
+    if (!new_node)
+    {
+        fprintf(stderr, "Error: malloc failed\n");
+        free_all();
+        fclose(vars.stream);
+        exit(EXIT_FAILURE);
     }
 
-    value = strtok(NULL, delim);
+    new_node->n = value;
+    new_node->next = NULL;
 
-    find_func(opcode, value, line_number);
+    if (vars.stack)
+    {
+        new_node->next = vars.stack;
+        vars.stack->prev = new_node;
+    }
+
+    vars.stack = new_node;
+    return 0;
 }
 
 /**
- * find_func - Finds the appropriate function for the opcode and calls it.
- * @opcode: The opcode to find the function for.
- * @value: The value associated with the opcode.
- * @line_number: The line number of the opcode.
+ * add - Adds the top two elements of the stack.
+ * @stack: The head of the stack.
+ * @line_number: The line number where the opcode exists.
  *
- * Return: void
+ * Return: 0 if success, otherwise return EXIT_FAILURE.
  */
-void find_func(char *opcode, char *value, int line_number)
+int add(stack_t **stack, unsigned int line_number)
 {
-    int i;
-
-    for (i = 0; instructions[i].opcode != NULL; i++) {
-        if (strcmp(opcode, instructions[i].opcode) == 0) {
-            instructions[i].f(head, value, line_number);
-            return;
-        }
+    if (!*stack || !(*stack)->next)
+    {
+        fprintf(stderr, "L%u: can't add, stack too short\n", line_number);
+        free_all();
+        fclose(vars.stream);
+        exit(EXIT_FAILURE);
     }
-
-    err(3, line_number, opcode);
-}
-
-/**
- * call_fun - Calls the required function.
- * @func: Pointer to the function that is about to be called.
- * @op: string representing the opcode.
- * @val: string representing a numeric value.
- * @ln: line numeber for the instruction.
- * @format: Format specifier. If 0 Nodes will be entered as a stack.
- * if 1 nodes will be entered as a queue.
- */
-void call_fun(op_func func, char *op, char *val, int ln, int format)
-{
-    stack_t *node;
-    int flag;
-    int i;
-
-    flag = 1;
-    if (strcmp(op, "push") == 0) {
-        if (val != NULL && val[0] == '-') {
-            val = val + 1;
-            flag = -1;
-        }
-        if (val == NULL) {
-            err(5, ln);
-        }
-        for (i = 0; val[i] != '\0'; i++) {
-            if (isdigit(val[i]) == 0) {
-                err(5, ln);
-            }
-        }
-        node = create_node(atoi(val) * flag);
-        if (format == 0) {
-            func(&node, ln);
-        }
-        if (format == 1) {
-            add_to_queue(&node, ln);
-        }
-    } else {
-        func(&head, ln);
+    else
+    {
+        (*stack)->next->n = (*stack)->next->n + (*stack)->n;
+        return pop(stack, line_number);
     }
 }
+
+

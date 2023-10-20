@@ -1,14 +1,16 @@
 #ifndef MONTY_H
 #define MONTY_H
 
-#define _GNU_SOURCE
 #include <stdio.h>
-#include <unistd.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/uio.h>
 #include <ctype.h>
-#include <stdarg.h>
-
 /**
  * struct stack_s - doubly linked list representation of a stack (or queue)
  * @n: integer
@@ -20,9 +22,9 @@
  */
 typedef struct stack_s
 {
-    int data;
-    struct stack_s *next;
-    struct stack_s *prev;
+		int n;
+		struct stack_s *prev;
+		struct stack_s *next;
 } stack_t;
 /**
  * struct instruction_s - opcode and its function
@@ -34,50 +36,57 @@ typedef struct stack_s
  */
 typedef struct instruction_s
 {
-        char *opcode;
-        void (*f)(stack_t **stack, unsigned int line_number);
+		char *opcode;
+		void (*f)(stack_t **stack, unsigned int line_number);
 } instruction_t;
+/**
+ * struct Data - struct of datas to be used as global variable
+ * @buff: getline buffer
+ * @size: getline buffer size
+ * @stream: file stream
+ * @line_number: line number
+ * @stack: head of the stack
+ * @instruct: array of instructions
+ */
+typedef struct Data
+{
+		char *buff;
+		size_t size;
+		FILE *stream;
+		int line_number;
+		stack_t *stack;
+		instruction_t instruct[18];
+		char *format; /* LIFO & FIFO */
+} Data;
+extern Data vars;
 
-extern stack_t *head;
-typedef void (*op_func)(stack_t **, unsigned int);
+/* execute_line.c */
+int execute_opcode(char *opcode, stack_t **stack, unsigned int line_number);
+int set_format(const char *format);
 
-/*file operations*/
-void open_file(char *file_name);
-int parse_line(char *buffer, int line_number, int format);
-void read_file(FILE *);
-int len_chars(FILE *);
-void find_func(char *, char *, int, int);
+/* 0-opcodes.c */
+void push(stack_t **stack, unsigned int line_number);
+void pall(stack_t **stack, unsigned int line_number);
+void pint(stack_t **stack, unsigned int line_number);
+void pop(stack_t **stack, unsigned int line_number);
+void swap(stack_t **stack, unsigned int line_number);
 
-/*Stack operations*/
-stack_t *create_node(int n);
-void free_nodes(void);
-void print_stack(stack_t **, unsigned int);
-void add_to_stack(stack_t **, unsigned int);
-void add_to_queue(stack_t **, unsigned int);
+/* 1-opcodes.c */
+void arithmetic_op(stack_t **stack, unsigned int line_number, void (*operation)(stack_t **), const char *op_symbol);
+void add(stack_t **stack, unsigned int line_number);
+void add_operation(stack_t **stack);
+void sub(stack_t **stack, unsigned int line_number);
+void sub_operation(stack_t **stack);
 
-void call_fun(op_func, char *, char *, int, int);
+/* 2-opcodes.c*/
+int execute_stack_operation(stack_t **stack, unsigned int line_number, const char *opcode);
+int execute_mod(stack_t **stack, unsigned int line_number);
 
-void print_top(stack_t **, unsigned int);
-void pop_top(stack_t **, unsigned int);
-void nop(stack_t **, unsigned int);
-void swap_nodes(stack_t **, unsigned int);
+/*tools.c*/
+int init_instructions(void);
+void free_all(void);
+int is_integer(const char *str);
+int push_value(int value);
+int add(stack_t **stack, unsigned int line_number);
 
-/*Math operations with nodes*/
-void add_nodes(stack_t **, unsigned int);
-void sub_nodes(stack_t **, unsigned int);
-void div_nodes(stack_t **, unsigned int);
-void mul_nodes(stack_t **, unsigned int);
-void mod_nodes(stack_t **, unsigned int);
-
-/*String operations*/
-void print_char(stack_t **, unsigned int);
-void print_str(stack_t **, unsigned int);
-void rotl(stack_t **, unsigned int);
-
-/*Error hanlding*/
-void err(int error_code, ...);
-void more_err(int error_code, ...);
-void string_err(int error_code, ...);
-void rotr(stack_t **, unsigned int);
-
-#endif
+#endif /* MONTY_H */
