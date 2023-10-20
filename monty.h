@@ -61,8 +61,9 @@ typedef struct Data
 extern Data vars;
 
 /* execute_line.c */
-int execute_opcode(char *opcode, stack_t **stack, unsigned int line_number);
-int set_format(const char *format);
+int execute_opcode(char *opcode);
+void stack(stack_t **stack, unsigned int line_number);
+void queue(stack_t **stack, unsigned int line_number);
 
 /* 0-opcodes.c */
 void push(stack_t **stack, unsigned int line_number);
@@ -72,21 +73,24 @@ void pop(stack_t **stack, unsigned int line_number);
 void swap(stack_t **stack, unsigned int line_number);
 
 /* 1-opcodes.c */
-void arithmetic_op(stack_t **stack, unsigned int line_number, void (*operation)(stack_t **), const char *op_symbol);
 void add(stack_t **stack, unsigned int line_number);
-void add_operation(stack_t **stack);
+void nop(stack_t **stack, unsigned int line_number);
 void sub(stack_t **stack, unsigned int line_number);
-void sub_operation(stack_t **stack);
+void divid(stack_t **stack, unsigned int line_number);
+void mul(stack_t **stack, unsigned int line_number);
 
 /* 2-opcodes.c*/
-int execute_stack_operation(stack_t **stack, unsigned int line_number, const char *opcode);
-int execute_mod(stack_t **stack, unsigned int line_number);
+void mod(stack_t **stack, unsigned int line_number);
+void pchar(stack_t **stack, unsigned int line_number);
+void pstr(stack_t **stack, unsigned int line_number);
+void rotl(stack_t **stack, unsigned int line_number);
+void rotr(stack_t **stack, unsigned int line_number);
 
-/*tools.c*/
-int init_instructions(void);
+/* tools.c */
+void initialize_vars(void);
 void free_all(void);
-int is_integer(const char *str);
-int push_value(int value);
-int add(stack_t **stack, unsigned int line_number);
+int _isdigit(char *str);
+void add_node(stack_t **head, const int n);
+void add_node_end(stack_t **head, const int n);
 
 #endif /* MONTY_H */

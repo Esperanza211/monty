@@ -1,135 +1,133 @@
 #include "monty.h"
-
 /**
- * init_instructions - Initialize the instruction set.
+ * initialize_vars - initialize variables
  *
- * Return: 0 if success, otherwise return EXIT_FAILURE
+ * Return: void
  */
-int init_instructions(void)
+void initialize_vars(void)
 {
-    const instruction_t instructions[] = {
-        {"push", push},
-        {"pall", pall},
-        {"pint", pint},
-        {"pop", pop},
-        {"swap", swap},
-        {"add", add},
-        {"nop", nop},
-        {"sub", sub},
-        {"div", divid},
-        {"mul", mul},
-        {"mod", mod},
-        {"pchar", pchar},
-        {"pstr", pstr},
-        {"rotl", rotl},
-        {"rotr", rotr},
-        {"stack", stack},
-        {"queue", queue},
-        {NULL, NULL}
-    };
-
-    for (int i = 0; instructions[i].opcode; i++) {
-        vars.instruct[i] = instructions[i];
-    }
-
-    return 0;
+	vars.buff = NULL;
+	vars.size = 0;
+	vars.line_number = 1;
+	vars.stack = NULL;
+	vars.format = "LIFO"; /* stack */
+	vars.instruct[0].opcode = "push", vars.instruct[0].f = push;
+	vars.instruct[1].opcode = "pall", vars.instruct[1].f = pall;
+	vars.instruct[2].opcode = "pint", vars.instruct[2].f = pint;
+	vars.instruct[3].opcode = "pop", vars.instruct[3].f = pop;
+	vars.instruct[4].opcode = "swap", vars.instruct[4].f = swap;
+	vars.instruct[5].opcode = "add", vars.instruct[5].f = add;
+	vars.instruct[6].opcode = "nop", vars.instruct[6].f = nop;
+	vars.instruct[7].opcode = "sub", vars.instruct[7].f = sub;
+	vars.instruct[8].opcode = "div", vars.instruct[8].f = divid;
+	vars.instruct[9].opcode = "mul", vars.instruct[9].f = mul;
+	vars.instruct[10].opcode = "mod", vars.instruct[10].f = mod;
+	vars.instruct[11].opcode = "pchar", vars.instruct[11].f = pchar;
+	vars.instruct[12].opcode = "pstr", vars.instruct[12].f = pstr;
+	vars.instruct[13].opcode = "rotl", vars.instruct[13].f = rotl;
+	vars.instruct[14].opcode = "rotr", vars.instruct[14].f = rotr;
+	vars.instruct[15].opcode = "stack", vars.instruct[15].f = stack;
+	vars.instruct[16].opcode = "queue", vars.instruct[16].f = queue;
+	vars.instruct[17].opcode = NULL, vars.instruct[17].f = NULL;
 }
-
 /**
- * free_all - Free allocated memory.
+ * free_all - free allocated memory
  *
  * Return: void
  */
 void free_all(void)
 {
-    if (vars.buff)
-        free(vars.buff);
-    if (vars.stack)
-    {
-        while (vars.stack)
-        {
-            stack_t *temp = vars.stack;
-            vars.stack = vars.stack->next;
-            free(temp);
-        }
-    }
+	if (vars.buff)
+		free(vars.buff);
+	if (vars.stack)
+	{
+		while (vars.stack->next)
+		{
+			vars.stack = vars.stack->next;
+			free(vars.stack->prev);
+		}
+		free(vars.stack);
+	}
 }
-
 /**
- * is_integer - Check if a string is an integer.
- * @str: String to check.
+ * _isdigit - check if string is digit
+ * @str: string to check
  *
- * Return: 1 if it's an integer, 0 otherwise.
+ * Return: 0 if success otherwise return EXIT_FAILURE
  */
-int is_integer(const char *str)
+int _isdigit(char *str)
 {
-    if (!str || *str == '\0')
-        return 0;
+	int i;
 
-    if (*str == '-' || *str == '+')
-        str++;
-
-    while (*str)
-    {
-        if (*str < '0' || *str > '9')
-            return 0;
-        str++;
-    }
-
-    return 1;
+	for (i = 0; str[i]; i++)
+	{
+		if (i == 0 && str[i] == '-' && str[i + 1])
+			continue;
+		if (str[i] < 48 || str[i] > 57)
+			return (EXIT_FAILURE);
+	}
+	return (EXIT_SUCCESS);
 }
-
 /**
- * push_value - Push a value onto the stack.
- * @value: Value to push.
+ * add_node -  add element to stack.
+ * @head: the top of the stack
+ * @n: the element to add
  *
- * Return: 0 if success, otherwise return EXIT_FAILURE.
+ * Return: (void)
  */
-int push_value(int value)
+void add_node(stack_t **head, const int n)
 {
-    stack_t *new_node = malloc(sizeof(stack_t));
-    if (!new_node)
-    {
-        fprintf(stderr, "Error: malloc failed\n");
-        free_all();
-        fclose(vars.stream);
-        exit(EXIT_FAILURE);
-    }
+	stack_t *new;
 
-    new_node->n = value;
-    new_node->next = NULL;
+	new = malloc(sizeof(stack_t));
+	if (!new)
+	{
+		fprintf(stderr, "Error: malloc failed\n");
+		free_all(), fclose(vars.stream);
+		exit(EXIT_FAILURE);
+	}
+	new->n = n;
+	new->next = NULL;
+	new->prev = NULL;
 
-    if (vars.stack)
-    {
-        new_node->next = vars.stack;
-        vars.stack->prev = new_node;
-    }
-
-    vars.stack = new_node;
-    return 0;
+	new->next = *head;
+	if (*head)
+	{
+		(*head)->prev = new;
+	}
+	*head = new;
 }
-
 /**
- * add - Adds the top two elements of the stack.
- * @stack: The head of the stack.
- * @line_number: The line number where the opcode exists.
+ * add_node_end -  add element to queue.
+ * @head: the front of the queue
+ * @n: the element to add
  *
- * Return: 0 if success, otherwise return EXIT_FAILURE.
+ * Return: (void)
  */
-int add(stack_t **stack, unsigned int line_number)
+void add_node_end(stack_t **head, const int n)
 {
-    if (!*stack || !(*stack)->next)
-    {
-        fprintf(stderr, "L%u: can't add, stack too short\n", line_number);
-        free_all();
-        fclose(vars.stream);
-        exit(EXIT_FAILURE);
-    }
-    else
-    {
-        (*stack)->next->n = (*stack)->next->n + (*stack)->n;
-        return pop(stack, line_number);
-    }
+	stack_t *new, *tmp;
+
+	new = malloc(sizeof(stack_t));
+	if (!new)
+	{
+		fprintf(stderr, "Error: malloc failed\n");
+		free_all(), fclose(vars.stream);
+		exit(EXIT_FAILURE);
+	}
+	new->n = n;
+	new->next = NULL;
+	new->prev = NULL;
+	if (!*head)
+		*head = new;
+	else
+	{
+		tmp = *head;
+		while (tmp->next)
+			tmp = tmp->next;
+
+		tmp->next = new;
+		new->prev = tmp;
+		tmp = NULL;
+	}
 }
-
-

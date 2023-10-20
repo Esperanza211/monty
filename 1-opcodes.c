@@ -1,70 +1,108 @@
 #include "monty.h"
-
-/**
- * arithmetic_op - performs arithmetic operations on the top two elements of the stack.
- * @stack: the head of the stack
- * @line_number: the line number where the opcode exists
- * @operation: a function pointer to the specific arithmetic operation
- * @op_symbol: a string representing the arithmetic operation symbol
- *
- * Return: (void)
- */
-void arithmetic_op(stack_t **stack, unsigned int line_number, void (*operation)(stack_t **), const char *op_symbol)
-{
-	if (!stack || !(*stack) || !(*stack)->next)
-	{
-		fprintf(stderr, "L%u: can't %s, stack too short\n", line_number, op_symbol);
-		free_all();
-		fclose(vars.stream);
-		exit(EXIT_FAILURE);
-	}
-	operation(stack);
-}
-
 /**
  * add - adds the top two elements of the stack.
  * @stack: the head of the stack
- * @line_number: the line number where the opcode exists
+ * @line_number: the line number where the opcode exist
  *
  * Return: (void)
  */
 void add(stack_t **stack, unsigned int line_number)
 {
-	arithmetic_op(stack, line_number, add_operation, "add");
+	if (!(*stack) || !(*stack)->next)
+	{
+		fprintf(stderr, "L%u: can't add, stack too short\n", line_number);
+		free_all();
+		fclose(vars.stream);
+		exit(EXIT_FAILURE);
+	}
+	else
+	{
+		(*stack)->next->n = (*stack)->next->n + (*stack)->n;
+		pop(stack, line_number);
+	}
 }
-
 /**
- * add_operation - actual addition operation.
+ * nop - I am useless :|
  * @stack: the head of the stack
+ * @line_number: the line number where the opcode exist
  *
  * Return: (void)
  */
-void add_operation(stack_t **stack)
+void nop(stack_t **stack, unsigned int line_number)
 {
-	(*stack)->next->n += (*stack)->n;
-	pop(stack, 0); 
+	(void) stack;
+	(void) line_number;
 }
-
 /**
- * sub - subtracts the top element of the stack from the second top element.
+ * sub - subtracts the top element of the stack from the second top element
+ * of the stack.
  * @stack: the head of the stack
- * @line_number: the line number where the opcode exists
+ * @line_number: the line number where the opcode exist
  *
  * Return: (void)
  */
 void sub(stack_t **stack, unsigned int line_number)
 {
-	arithmetic_op(stack, line_number, sub_operation, "sub");
+	if (!(*stack) || !(*stack)->next)
+	{
+		fprintf(stderr, "L%u: can't sub, stack too short\n", line_number);
+		free_all();
+		fclose(vars.stream);
+		exit(EXIT_FAILURE);
+	}
+	else
+	{
+		(*stack)->next->n = (*stack)->next->n - (*stack)->n;
+		pop(stack, line_number);
+	}
 }
-
 /**
- * sub_operation - actual subtraction operation.
+ * divid - divides the second top element of the stack by the top element
+ * of the stack.
  * @stack: the head of the stack
+ * @line_number: the line number where the opcode exist
  *
  * Return: (void)
  */
-void sub_operation(stack_t **stack)
+void divid(stack_t **stack, unsigned int line_number)
 {
-	(*stack)->next->n -= (*stack)->n;
-	pop(stack, 0); 
+	if (!(*stack) || !(*stack)->next || (*stack)->n == 0)
+	{
+		if (*stack && (*stack)->next)
+			fprintf(stderr, "L%u: division by zero\n", line_number);
+		else
+			fprintf(stderr, "L%u: can't div, stack too short\n", line_number);
+		free_all();
+		fclose(vars.stream);
+		exit(EXIT_FAILURE);
+	}
+	else
+	{
+		(*stack)->next->n = (*stack)->next->n / (*stack)->n;
+		pop(stack, line_number);
+	}
 }
+/**
+ * mul - multiplies the second top element of the stack with the top element
+ * of the stack.
+ * @stack: the head of the stack
+ * @line_number: the line number where the opcode exist
+ *
+ * Return: (void)
+ */
+void mul(stack_t **stack, unsigned int line_number)
+{
+	if (!(*stack) || !(*stack)->next)
+	{
+		fprintf(stderr, "L%u: can't mul, stack too short\n", line_number);
+		free_all();
+		fclose(vars.stream);
+		exit(EXIT_FAILURE);
+	}
+	else
+	{
+		(*stack)->next->n = (*stack)->next->n * (*stack)->n;
+		pop(stack, line_number);
+	}
+}
+
