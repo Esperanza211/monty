@@ -1,122 +1,95 @@
 #include "monty.h"
-/**
- * mod - computes the rest of the division of the second top element of
- * the stack by the top element of the stack.
- * @stack: the head of the stack
- * @line_number: the line number where the opcode exist
- *
- * Return: (void)
- */
-void mod(stack_t **stack, unsigned int line_number)
-{
-	if (!(*stack) || !(*stack)->next || (*stack)->n == 0)
-	{
-		if (*stack && (*stack)->next)
-			fprintf(stderr, "L%u: division by zero\n", line_number);
-		else
-			fprintf(stderr, "L%u: can't mod, stack too short\n", line_number);
-		free_all(), fclose(vars.stream);
-		exit(EXIT_FAILURE);
-	}
-	else
-	{
-		(*stack)->next->n = (*stack)->next->n % (*stack)->n;
-		pop(stack, line_number);
-	}
-}
-/**
- * pchar - prints the char at the top of the stack, followed by a new line.
- * @stack: the head of the stack
- * @line_number: the line number where the opcode exist
- *
- * Return: (void)
- */
-void pchar(stack_t **stack, unsigned int line_number)
-{
-	if (!(*stack))
-	{
-		fprintf(stderr, "L%u: can't pchar, stack empty\n", line_number);
-		free_all(), fclose(vars.stream);
-		exit(EXIT_FAILURE);
-	}
-	if ((*stack)->n < 0 || (*stack)->n > 127)
-	{
-		fprintf(stderr, "L%u: can't pchar, value out of range\n", line_number);
-		free_all(), fclose(vars.stream);
-		exit(EXIT_FAILURE);
-	}
-	printf("%c\n", (*stack)->n);
-}
-/**
- * pstr - prints the string starting at the top of the stack, followed by
- * a new line.
- * @stack: the head of the stack
- * @line_number: the line number where the opcode exist
- *
- * Return: (void)
- */
-void pstr(stack_t **stack, unsigned int line_number)
-{
-	stack_t *tmp = *stack;
-	(void) line_number;
 
-	while (tmp)
-	{
-		if (tmp->n <= 0 || tmp->n > 127)
-			break;
-		printf("%c", tmp->n);
-		tmp = tmp->next;
-	}
-	printf("\n");
-}
 /**
- * rotl - rotates the stack to the top
- * (The top element of the stack becomes
- * the last one, and the second top element of the stack
- * becomes the first one)
- *
- * @stack: the head of the stack
- * @line_number: the line number where the opcode exist
- *
- * Return: (void)
+ * ynop - Does nothing.
+ * @stack: Pointer to a pointer pointing to top node of the stack.
+ * @lineNumber: Interger representing the line number of of the opcode.
  */
-void rotl(stack_t **stack, unsigned int line_number)
+void ynop(stack_t **stack, unsigned int lineNumber)
 {
-	stack_t *tmp = *stack;
-	(void) line_number;
-
-	if (*stack && (*stack)->next)
-	{
-		while (tmp->next)
-			tmp = tmp->next;
-		tmp->next = (*stack);
-		*stack = (*stack)->next;
-		(*stack)->prev = NULL;
-		tmp->next->next = NULL;
-		tmp->next->prev = tmp;
-	}
+	(void)stack;
+	(void)lineNumber;
 }
-/**
- * rotr - rotates the stack to the bottom
- * The last element of the stack becomes the top element of the stack.
- * @stack: the head of the stack
- * @line_number: the line number where the opcode exist
- *
- * Return: (void)
- */
-void rotr(stack_t **stack, unsigned int line_number)
-{
-	stack_t *tmp = *stack;
-	(void) line_number;
 
-	if (*stack && (*stack)->next)
-	{
-		while (tmp->next)
-			tmp = tmp->next;
-		tmp->next = *stack;
-		tmp->prev->next = NULL;
-		tmp->prev = NULL;
-		(*stack)->prev = tmp;
-		(*stack) = tmp;
-	}
+
+/**
+ * swap_node - Swaps the top two elements of the stack.
+ * @stack: Pointer to a pointer pointing to top node of the stack.
+ * @lineNumber: Interger representing the line number of of the opcode.
+ */
+void swap_node(stack_t **stack, unsigned int lineNumber)
+{
+	stack_t *tmp;
+
+	if (stack == NULL || *stack == NULL || (*stack)->next == NULL)
+		more_(8, lineNumber, "swap");
+	tmp = (*stack)->next;
+	(*stack)->next = tmp->next;
+	if (tmp->next != NULL)
+		tmp->next->prev = *stack;
+	tmp->next = *stack;
+	(*stack)->prev = tmp;
+	tmp->prev = NULL;
+	*stack = tmp;
+}
+
+/**
+ * add_node - Adds the top two elements of the stack.
+ * @stack: Pointer to a pointer pointing to top node of the stack.
+ * @lineNumber: Interger representing the line number of of the opcode.
+ */
+void add_node(stack_t **stack, unsigned int lineNumber)
+{
+	int s;
+
+	if (stack == NULL || *stack == NULL || (*stack)->next == NULL)
+		more_(8, lineNumber, "add");
+
+	(*stack) = (*stack)->next;
+	s = (*stack)->n + (*stack)->prev->n;
+	(*stack)->n = s;
+	free((*stack)->prev);
+	(*stack)->prev = NULL;
+}
+
+/**
+ * sub_node - Adds the top two elements of the stack.
+ * @stack: Pointer to a pointer pointing to top node of the stack.
+ * @lineNumber: Interger representing the line number of of the opcode.
+ */
+void sub_node(stack_t **stack, unsigned int lineNumber)
+{
+	int s;
+
+	if (stack == NULL || *stack == NULL || (*stack)->next == NULL)
+
+		more_(8, lineNumber, "sub");
+
+
+	(*stack) = (*stack)->next;
+	s = (*stack)->n - (*stack)->prev->n;
+	(*stack)->n = s;
+	free((*stack)->prev);
+	(*stack)->prev = NULL;
+}
+
+/**
+ * div_node - Adds the top two elements of the stack.
+ * @stack: Pointer to a pointer pointing to top node of the stack.
+ * @lineNumber: Interger representing the line number of of the opcode.
+ */
+void div_node(stack_t **stack, unsigned int lineNumber)
+{
+	int s;
+
+	if (stack == NULL || *stack == NULL || (*stack)->next == NULL)
+		more_(8, lineNumber, "div");
+
+	if ((*stack)->n == 0)
+		more_(9, lineNumber);
+	(*stack) = (*stack)->next;
+	s = (*stack)->n / (*stack)->prev->n;
+	(*stack)->n = s;
+	free((*stack)->prev);
+	(*stack)->prev = NULL;
 }

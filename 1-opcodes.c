@@ -1,108 +1,76 @@
 #include "monty.h"
+
+
 /**
- * add - adds the top two elements of the stack.
- * @stack: the head of the stack
- * @line_number: the line number where the opcode exist
- *
- * Return: (void)
+ * add_stack - Adds a node to the stack.
+ * @new_node: Pointer to the new node.
+ * @ln: Interger representing the line number of of the opcode.
  */
-void add(stack_t **stack, unsigned int line_number)
+void add_stack(stack_t **new_node, __attribute__((unused))unsigned int ln)
 {
-	if (!(*stack) || !(*stack)->next)
-	{
-		fprintf(stderr, "L%u: can't add, stack too short\n", line_number);
-		free_all();
-		fclose(vars.stream);
+	stack_t *tmp;
+
+	if (new_node == NULL || *new_node == NULL)
 		exit(EXIT_FAILURE);
-	}
-	else
+	if (head == NULL)
 	{
-		(*stack)->next->n = (*stack)->next->n + (*stack)->n;
-		pop(stack, line_number);
+		head = *new_node;
+		return;
 	}
+	tmp = head;
+	head = *new_node;
+	head->next = tmp;
+	tmp->prev = head;
 }
+
+
 /**
- * nop - I am useless :|
- * @stack: the head of the stack
- * @line_number: the line number where the opcode exist
- *
- * Return: (void)
+ * printf_stack - Adds a node to the stack.
+ * @stack: Pointer to a pointer pointing to top node of the stack.
+ * @lineNumber: line number of  the opcode.
  */
-void nop(stack_t **stack, unsigned int line_number)
+void printf_stack(stack_t **stack, unsigned int lineNumber)
 {
-	(void) stack;
-	(void) line_number;
-}
-/**
- * sub - subtracts the top element of the stack from the second top element
- * of the stack.
- * @stack: the head of the stack
- * @line_number: the line number where the opcode exist
- *
- * Return: (void)
- */
-void sub(stack_t **stack, unsigned int line_number)
-{
-	if (!(*stack) || !(*stack)->next)
-	{
-		fprintf(stderr, "L%u: can't sub, stack too short\n", line_number);
-		free_all();
-		fclose(vars.stream);
+	stack_t *tmp;
+
+	(void) lineNumber;
+	if (stack == NULL)
 		exit(EXIT_FAILURE);
-	}
-	else
+	tmp = *stack;
+	while (tmp != NULL)
 	{
-		(*stack)->next->n = (*stack)->next->n - (*stack)->n;
-		pop(stack, line_number);
-	}
-}
-/**
- * divid - divides the second top element of the stack by the top element
- * of the stack.
- * @stack: the head of the stack
- * @line_number: the line number where the opcode exist
- *
- * Return: (void)
- */
-void divid(stack_t **stack, unsigned int line_number)
-{
-	if (!(*stack) || !(*stack)->next || (*stack)->n == 0)
-	{
-		if (*stack && (*stack)->next)
-			fprintf(stderr, "L%u: division by zero\n", line_number);
-		else
-			fprintf(stderr, "L%u: can't div, stack too short\n", line_number);
-		free_all();
-		fclose(vars.stream);
-		exit(EXIT_FAILURE);
-	}
-	else
-	{
-		(*stack)->next->n = (*stack)->next->n / (*stack)->n;
-		pop(stack, line_number);
-	}
-}
-/**
- * mul - multiplies the second top element of the stack with the top element
- * of the stack.
- * @stack: the head of the stack
- * @line_number: the line number where the opcode exist
- *
- * Return: (void)
- */
-void mul(stack_t **stack, unsigned int line_number)
-{
-	if (!(*stack) || !(*stack)->next)
-	{
-		fprintf(stderr, "L%u: can't mul, stack too short\n", line_number);
-		free_all();
-		fclose(vars.stream);
-		exit(EXIT_FAILURE);
-	}
-	else
-	{
-		(*stack)->next->n = (*stack)->next->n * (*stack)->n;
-		pop(stack, line_number);
+		printf("%d\n", tmp->n);
+		tmp = tmp->next;
 	}
 }
 
+/**
+ * pop_ - Adds a node to the stack.
+ * @stack: Pointer to a pointer pointing to top node of the stack.
+ * @lineNumber: Interger representing the line number of of the opcode.
+ */
+void pop_(stack_t **stack, unsigned int lineNumber)
+{
+	stack_t *tmp;
+
+	if (stack == NULL || *stack == NULL)
+		more_(7, lineNumber);
+
+	tmp = *stack;
+	*stack = tmp->next;
+	if (*stack != NULL)
+		(*stack)->prev = NULL;
+	free(tmp);
+}
+
+/**
+ * printF_top - Prints the top node of the stack.
+ * @stack: Pointer to a pointer pointing to top node of the stack.
+ * @lineNumber: Interger representing the line number of of the opcode.
+ */
+void printF_top(stack_t **stack, unsigned int lineNumber)
+{
+	if (stack == NULL || *stack == NULL)
+		more_(6, lineNumber);
+	printf("%d\n", (*stack)->n);
+}

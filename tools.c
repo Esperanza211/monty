@@ -1,133 +1,160 @@
 #include "monty.h"
+
 /**
- * initialize_vars - initialize variables
- *
+ * _open - opens a file
+ * @file_name: the file namepath
  * Return: void
  */
-void initialize_vars(void)
+
+void _open(char *file_name)
 {
-	vars.buff = NULL;
-	vars.size = 0;
-	vars.line_number = 1;
-	vars.stack = NULL;
-	vars.format = "LIFO"; /* stack */
-	vars.instruct[0].opcode = "push", vars.instruct[0].f = push;
-	vars.instruct[1].opcode = "pall", vars.instruct[1].f = pall;
-	vars.instruct[2].opcode = "pint", vars.instruct[2].f = pint;
-	vars.instruct[3].opcode = "pop", vars.instruct[3].f = pop;
-	vars.instruct[4].opcode = "swap", vars.instruct[4].f = swap;
-	vars.instruct[5].opcode = "add", vars.instruct[5].f = add;
-	vars.instruct[6].opcode = "nop", vars.instruct[6].f = nop;
-	vars.instruct[7].opcode = "sub", vars.instruct[7].f = sub;
-	vars.instruct[8].opcode = "div", vars.instruct[8].f = divid;
-	vars.instruct[9].opcode = "mul", vars.instruct[9].f = mul;
-	vars.instruct[10].opcode = "mod", vars.instruct[10].f = mod;
-	vars.instruct[11].opcode = "pchar", vars.instruct[11].f = pchar;
-	vars.instruct[12].opcode = "pstr", vars.instruct[12].f = pstr;
-	vars.instruct[13].opcode = "rotl", vars.instruct[13].f = rotl;
-	vars.instruct[14].opcode = "rotr", vars.instruct[14].f = rotr;
-	vars.instruct[15].opcode = "stack", vars.instruct[15].f = stack;
-	vars.instruct[16].opcode = "queue", vars.instruct[16].f = queue;
-	vars.instruct[17].opcode = NULL, vars.instruct[17].f = NULL;
+	FILE *fd = fopen(file_name, "r");
+
+	if (file_name == NULL || fd == NULL)
+		_error(2, file_name);
+
+	_read(fd);
+	fclose(fd);
 }
+
+
 /**
- * free_all - free allocated memory
- *
+ * _read - reads a file
+ * @fd: pointer to file descriptor
  * Return: void
  */
-void free_all(void)
+
+void _read(FILE *fd)
 {
-	if (vars.buff)
-		free(vars.buff);
-	if (vars.stack)
+	int lineNumber, i = 0;
+	char *buffer = NULL;
+	size_t n = 0;
+
+	for (lineNumber = 1; getline(&buffer, &n, fd) != -1; lineNumber++)
 	{
-		while (vars.stack->next)
-		{
-			vars.stack = vars.stack->next;
-			free(vars.stack->prev);
-		}
-		free(vars.stack);
+		i = _parse(buffer, lineNumber, i);
 	}
+	free(buffer);
 }
+
+
 /**
- * _isdigit - check if string is digit
- * @str: string to check
- *
- * Return: 0 if success otherwise return EXIT_FAILURE
+ * _parse - Separates each line into tokens to determine
+ * which function to call
+ * @buffer: line from the file
+ * @lineNumber: line number
+ * @i:  storage format. If 0 Nodes will be entered as a stack.
+ * if 1 nodes will be entered as a queue.
+ * Return: Returns 0 if the opcode is stack. 1 if queue.
  */
-int _isdigit(char *str)
+
+int _parse(char *buffer, int lineNumber, int i)
 {
+	char *op, *val;
+	const char *delim = "\n ";
+
+	if (buffer == NULL)
+		_error(4);
+
+	op = strtok(buffer, delim);
+	if (op == NULL)
+		return (i);
+	val = strtok(NULL, delim);
+
+	if (strcmp(op, "stack") == 0)
+		return (0);
+	if (strcmp(op, "queue") == 0)
+		return (1);
+
+	find_func(op, val, lineNumber, i);
+	return (i);
+}
+
+/**
+ * find_func - find the appropriate function for the opcode
+ * @op: opcode
+ * @val: argument of opcode
+ * @i:  storage format. If 0 Nodes will be entered as a stack.
+ * @ln: line number
+ * if 1 nodes will be entered as a queue.
+ * Return: void
+ */
+void find_func(char *op, char *val, int ln, int i)
+{
+	int n;
+	int flag;
+
+	instruction_t func_list[] = {
+		{"push", add_stack},
+		{"pall", printf_stack},
+		{"pint", printF_top},
+		{"pop", pop_},
+		{"nop", ynop},
+		{"swap", swap_node},
+		{"add", add_node},
+		{"sub", sub_node},
+		{"div", div_node},
+		{"mul", mul_node},
+		{"mod", mod_node},
+		{"pchar", printf_char},
+		{"pstr", printF_str},
+		{"rotl", roYHYtl},
+		{"rotr", roYHYtr},
+		{NULL, NULL}
+	};
+
+	if (op[0] == '#')
+		return;
+
+	for (flag = 1, n = 0; func_list[n].opcode != NULL; n++)
+	{
+		if (strcmp(op, func_list[n].opcode) == 0)
+		{
+			_call(func_list[n].f, op, val, ln, i);
+			flag = 0;
+		}
+	}
+	if (flag == 1)
+		_error(3, ln, op);
+}
+
+
+/**
+ * _call - Calls the required function.
+ * @func: Pointer to the function that is about to be called.
+ * @op: string representing the opcode.
+ * @val: string representing a numeric value.
+ * @ln: line numeber for the instruction.
+ * @f: Format specifier. If 0 Nodes will be entered as a stack.
+ * if 1 nodes will be entered as a queue.
+ */
+void _call(op_func func, char *op, char *val, int ln, int f)
+{
+	stack_t *node;
+	int flag;
 	int i;
 
-	for (i = 0; str[i]; i++)
+	flag = 1;
+	if (strcmp(op, "push") == 0)
 	{
-		if (i == 0 && str[i] == '-' && str[i + 1])
-			continue;
-		if (str[i] < 48 || str[i] > 57)
-			return (EXIT_FAILURE);
+		if (val != NULL && val[0] == '-')
+		{
+			val = val + 1;
+			flag = -1;
+		}
+		if (val == NULL)
+			_error(5, ln);
+		for (i = 0; val[i] != '\0'; i++)
+		{
+			if (isdigit(val[i]) == 0)
+				_error(5, ln);
+		}
+		node = _node(atoi(val) * flag);
+		if (f == 0)
+			func(&node, ln);
+		if (f == 1)
+			add_queue(&node, ln);
 	}
-	return (EXIT_SUCCESS);
-}
-/**
- * add_node -  add element to stack.
- * @head: the top of the stack
- * @n: the element to add
- *
- * Return: (void)
- */
-void add_node(stack_t **head, const int n)
-{
-	stack_t *new;
-
-	new = malloc(sizeof(stack_t));
-	if (!new)
-	{
-		fprintf(stderr, "Error: malloc failed\n");
-		free_all(), fclose(vars.stream);
-		exit(EXIT_FAILURE);
-	}
-	new->n = n;
-	new->next = NULL;
-	new->prev = NULL;
-
-	new->next = *head;
-	if (*head)
-	{
-		(*head)->prev = new;
-	}
-	*head = new;
-}
-/**
- * add_node_end -  add element to queue.
- * @head: the front of the queue
- * @n: the element to add
- *
- * Return: (void)
- */
-void add_node_end(stack_t **head, const int n)
-{
-	stack_t *new, *tmp;
-
-	new = malloc(sizeof(stack_t));
-	if (!new)
-	{
-		fprintf(stderr, "Error: malloc failed\n");
-		free_all(), fclose(vars.stream);
-		exit(EXIT_FAILURE);
-	}
-	new->n = n;
-	new->next = NULL;
-	new->prev = NULL;
-	if (!*head)
-		*head = new;
 	else
-	{
-		tmp = *head;
-		while (tmp->next)
-			tmp = tmp->next;
-
-		tmp->next = new;
-		new->prev = tmp;
-		tmp = NULL;
-	}
+		func(&head, ln);
 }

@@ -1,115 +1,43 @@
 #include "monty.h"
+
 /**
- * push - pushes an element to the stack
- * @stack: the head of the stack
- * @line_number: the line number where the opcode exist
- *
- * Return: (void)
+ * mul_node - Adds the top two elements of the stack.
+ * @stack: Pointer to a pointer pointing to top node of the stack.
+ * @lineNumber: Interger representing the line number of of the opcode.
  */
-void push(stack_t **stack, unsigned int line_number)
+void mul_node(stack_t **stack, unsigned int lineNumber)
 {
-	char *number;
+	int s;
 
-	number = strtok(NULL, " \t\n");
-	if (number == NULL || _isdigit(number) == EXIT_FAILURE)
-	{
-		fprintf(stderr, "L%u: usage: push integer\n", line_number);
-		free_all(), fclose(vars.stream);
-		exit(EXIT_FAILURE);
-	}
-	if (strcmp(vars.format, "FIFO") == 0) /* Queue */
-		add_node_end(stack, atoi(number));
+	if (stack == NULL || *stack == NULL || (*stack)->next == NULL)
+		more_(8, lineNumber, "mul");
 
-	else /* Stack */
-		add_node(stack, atoi(number));
+	(*stack) = (*stack)->next;
+	s = (*stack)->n * (*stack)->prev->n;
+	(*stack)->n = s;
+	free((*stack)->prev);
+	(*stack)->prev = NULL;
 }
-/**
- * pall - prints all the values on the stack, starting from the top
- * @stack: the head of the stack
- * @line_number: the line number where the opcode exist
- *
- * Return: (void)
- */
 
-void pall(stack_t **stack, unsigned int line_number)
+/**
+ * mod_node - Adds the top two elements of the stack.
+ * @stack: Pointer to a pointer pointing to top node of the stack.
+ * @lineNumber: Interger representing the line number of of the opcode.
+ */
+void mod_node(stack_t **stack, unsigned int lineNumber)
 {
-	stack_t *ptr = *stack;
-	(void) line_number;
+	int s;
 
-	while (ptr)
-	{
-		printf("%d\n", ptr->n);
-		ptr = ptr->next;
-	}
-}
-/**
- * pint - prints the value at the top of the stack, followed by a new line
- * @stack: the head of the stack
- * @line_number: the line number where the opcode exist
- *
- * Return: (void)
- */
-void pint(stack_t **stack, unsigned int line_number)
-{
-	if (!*stack)
-	{
-		fprintf(stderr, "L%u: can't pint, stack empty\n", line_number);
-		free_all();
-		fclose(vars.stream);
-		exit(EXIT_FAILURE);
-	}
-	printf("%d\n", (*stack)->n);
-}
-/**
- * pop - removes the top element of the stack.
- * @stack: the head of the stack
- * @line_number: the line number where the opcode exist
- *
- * Return: (void)
- */
-void pop(stack_t **stack, unsigned int line_number)
-{
-	if (!*stack)
-	{
-		fprintf(stderr, "L%u: can't pop an empty stack\n", line_number);
-		free_all();
-		fclose(vars.stream);
-		exit(EXIT_FAILURE);
-	}
-	if (!(*stack)->next)
-	{
-		free(*stack);
-		*stack = NULL;
-	}
-	else
-	{
-		*stack = (*stack)->next;
-		free((*stack)->prev);
-		(*stack)->prev = NULL;
-	}
-}
-/**
- * swap - swaps the top two elements of the stack.
- * @stack: the head of the stack
- * @line_number: the line number where the opcode exist
- *
- * Return: (void)
- */
-void swap(stack_t **stack, unsigned int line_number)
-{
-	int tmp;
+	if (stack == NULL || *stack == NULL || (*stack)->next == NULL)
 
-	if (!(*stack) || !(*stack)->next)
-	{
-		fprintf(stderr, "L%u: can't swap, stack too short\n", line_number);
-		free_all();
-		fclose(vars.stream);
-		exit(EXIT_FAILURE);
-	}
-	else
-	{
-		tmp = (*stack)->n;
-		(*stack)->n = (*stack)->next->n;
-		(*stack)->next->n = tmp;
-	}
+		more_(8, lineNumber, "mod");
+
+
+	if ((*stack)->n == 0)
+		more_(9, lineNumber);
+	(*stack) = (*stack)->next;
+	s = (*stack)->n % (*stack)->prev->n;
+	(*stack)->n = s;
+	free((*stack)->prev);
+	(*stack)->prev = NULL;
 }
