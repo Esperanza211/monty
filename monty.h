@@ -36,45 +36,45 @@ typedef struct stack_s
 typedef struct instruction_s
 {
 	char *opcode;
-	void (*f)(stack_t **stack, unsigned int line_number);
+	void (*f)(stack_t **stack, unsigned int linenbr);
 } instruction_t;
 
 extern stack_t *head;
 typedef void (*op_func)(stack_t **, unsigned int);
 
 
-void _error(int _code, ...);
-void more_(int error_code, ...);
-void string_(int _code, ...);
+void error(int _errs, ...);
+void more_errs(int error_code, ...);
+void str_errs(int _errs, ...);
 
-void _open(char *file_name);
-void _read(FILE *fd);
-int _parse(char *buffer, int lineNumber, int i);
-void _call(op_func func, char *op, char *val, int ln, int f);
-void find_func(char *op, char *val, int ln, int i);
+void open_f(char *f_name);
+void read_f(FILE *fd);
+int parsef(char *buffer, int linenbr, int i);
+void callf(op_func func, char *ops, char *val, int ln, int f);
+void find_func(char *ops, char *val, int ln, int i);
 
-stack_t *_node(int n);
-void f_nodes(void);
-void add_queue(stack_t **, unsigned int);
+stack_t *nds(int n);
+void fr_nodes(void);
+void addqueue(stack_t **, unsigned int);
 
-void add_stack(stack_t **, unsigned int);
-void printf_stack(stack_t **, unsigned int);
-void pop_(stack_t **, unsigned int);
-void printF_top(stack_t **, unsigned int);
+void add_stk(stack_t **, unsigned int);
+void printf_stk(stack_t **, unsigned int);
+void _pop(stack_t **, unsigned int);
+void prt_top(stack_t **, unsigned int);
 
-void ynop(stack_t **, unsigned int);
-void swap_node(stack_t **, unsigned int);
-void add_node(stack_t **, unsigned int);
-void sub_node(stack_t **, unsigned int);
-void div_node(stack_t **, unsigned int);
+void nopy(stack_t **, unsigned int);
+void swapnds(stack_t **, unsigned int);
+void addnds(stack_t **, unsigned int);
+void subnds(stack_t **, unsigned int);
+void divnds(stack_t **, unsigned int);
 
-void mul_node(stack_t **, unsigned int);
-void mod_node(stack_t **, unsigned int);
+void mulnds(stack_t **, unsigned int);
+void modnds(stack_t **, unsigned int);
 
-void printf_char(stack_t **, unsigned int);
-void printF_str(stack_t **, unsigned int);
-void roYHYtl(stack_t **, unsigned int);
-void roYHYtr(stack_t **, unsigned int);
+void prt_char(stack_t **, unsigned int);
+void prt_str(stack_t **, unsigned int);
+void rfnsb(stack_t **, unsigned int);
+void rlnst(stack_t **, unsigned int);
 
 
 #endif

@@ -1,29 +1,29 @@
 #include "monty.h"
 
 /**
- * printf_char - Prints the Ascii value.
+ * prt_char - Prints the Ascii value.
  * @stack: Pointer to a pointer pointing to top node of the stack.
- * @lineNumber: Interger representing the line number of of the opcode.
+ * @linenbr: Interger representing the line number of of the opcode.
  */
-void printf_char(stack_t **stack, unsigned int lineNumber)
+void prt_char(stack_t **stack, unsigned int linenbr)
 {
 	int ascii;
 
 	if (stack == NULL || *stack == NULL)
-		string_(11, lineNumber);
+		str_errs(11, linenbr);
 
 	ascii = (*stack)->n;
 	if (ascii < 0 || ascii > 127)
-		string_(10, lineNumber);
+		str_errs(10, linenbr);
 	printf("%c\n", ascii);
 }
 
 /**
- * printF_str - Prints a string.
+ * prt_str - Prints a string.
  * @stack: Pointer to a pointer pointing to top node of the stack.
  * @ln: Interger representing the line number of of the opcode.
  */
-void printF_str(stack_t **stack, __attribute__((unused))unsigned int ln)
+void prt_str(stack_t **stack, __attribute__((unused))unsigned int ln)
 {
 	int ascii;
 	stack_t *tmp;
@@ -47,11 +47,11 @@ void printF_str(stack_t **stack, __attribute__((unused))unsigned int ln)
 }
 
 /**
- * roYHYtl - Rotates the first node of the stack to the bottom.
+ * rfnsb - Rotates the first node of the stack to the bottom.
  * @stack: Pointer to a pointer pointing to top node of the stack.
  * @ln: Interger representing the line number of of the opcode.
  */
-void roYHYtl(stack_t **stack, __attribute__((unused))unsigned int ln)
+void rfnsb(stack_t **stack, __attribute__((unused))unsigned int ln)
 {
 	stack_t *tmp;
 
@@ -71,11 +71,11 @@ void roYHYtl(stack_t **stack, __attribute__((unused))unsigned int ln)
 
 
 /**
- * roYHYtr - Rotates the last node of the stack to the top.
+ * rlnst - Rotates the last node of the stack to the top.
  * @stack: Pointer to a pointer pointing to top node of the stack.
  * @ln: Interger representing the line number of of the opcode.
  */
-void roYHYtr(stack_t **stack, __attribute__((unused))unsigned int ln)
+void rlnst(stack_t **stack, __attribute__((unused))unsigned int ln)
 {
 	stack_t *tmp;
 

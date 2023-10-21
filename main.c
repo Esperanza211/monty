@@ -3,35 +3,35 @@ stack_t *head = NULL;
 
 /**
  * main - entry point
- * @ac: arguments count
- * @av: list of arguments
+ * @arg_c: arguments count
+ * @arg_v: list of arguments
  * Return: always 0
  */
 
-int main(int ac, char *av[])
+int main(int arg_c, char *arg_v[])
 {
-	if (ac != 2)
+	if (arg_c != 2)
 	{
 		fprintf(stderr, "USAGE: monty file\n");
 		exit(EXIT_FAILURE);
 	}
-	_open(av[1]);
-	f_nodes();
+	open_f(arg_v[1]);
+	fr_nodes();
 	return (0);
 }
 
 /**
- * _node - Creates a node.
+ * nds - Creates a node.
  * @n: Number to go inside the node.
  * Return: Upon sucess a pointer to the node. Otherwise NULL.
  */
-stack_t *_node(int n)
+stack_t *nds(int n)
 {
 	stack_t *node;
 
 	node = malloc(sizeof(stack_t));
 	if (node == NULL)
-		_error(4);
+		error(4);
 	node->next = NULL;
 	node->prev = NULL;
 	node->n = n;
@@ -39,9 +39,9 @@ stack_t *_node(int n)
 }
 
 /**
- * f_nodes - Frees nodes in the stack.
+ * fr_nodes - Frees nodes in the stack.
  */
-void f_nodes(void)
+void fr_nodes(void)
 {
 	stack_t *tmp;
 
@@ -58,26 +58,26 @@ void f_nodes(void)
 
 
 /**
- * add_queue - Adds a node to the queue.
- * @new_node: Pointer to the new node.
+ * addqueue - Adds a node to the queue.
+ * @newnd: Pointer to the new node.
  * @ln: line number of the opcode.
  */
-void add_queue(stack_t **new_node, __attribute__((unused))unsigned int ln)
+void addqueue(stack_t **newnd, __attribute__((unused))unsigned int ln)
 {
 	stack_t *tmp;
 
-	if (new_node == NULL || *new_node == NULL)
+	if (newnd == NULL || *newnd == NULL)
 		exit(EXIT_FAILURE);
 	if (head == NULL)
 	{
-		head = *new_node;
+		head = *newnd;
 		return;
 	}
 	tmp = head;
 	while (tmp->next != NULL)
 		tmp = tmp->next;
 
-	tmp->next = *new_node;
-	(*new_node)->prev = tmp;
+	tmp->next = *newnd;
+	(*newnd)->prev = tmp;
 
 }

@@ -2,38 +2,38 @@
 
 
 /**
- * add_stack - Adds a node to the stack.
- * @new_node: Pointer to the new node.
+ * add_stk - Adds a node to the stack.
+ * @newnd: Pointer to the new node.
  * @ln: Interger representing the line number of of the opcode.
  */
-void add_stack(stack_t **new_node, __attribute__((unused))unsigned int ln)
+void add_stk(stack_t **newnd, __attribute__((unused))unsigned int ln)
 {
 	stack_t *tmp;
 
-	if (new_node == NULL || *new_node == NULL)
+	if (newnd == NULL || *newnd == NULL)
 		exit(EXIT_FAILURE);
 	if (head == NULL)
 	{
-		head = *new_node;
+		head = *newnd;
 		return;
 	}
 	tmp = head;
-	head = *new_node;
+	head = *newnd;
 	head->next = tmp;
 	tmp->prev = head;
 }
 
 
 /**
- * printf_stack - Adds a node to the stack.
+ * printf_stk - Adds a node to the stack.
  * @stack: Pointer to a pointer pointing to top node of the stack.
- * @lineNumber: line number of  the opcode.
+ * @linenbr: line number of  the opcode.
  */
-void printf_stack(stack_t **stack, unsigned int lineNumber)
+void printf_stk(stack_t **stack, unsigned int linenbr)
 {
 	stack_t *tmp;
 
-	(void) lineNumber;
+	(void) linenbr;
 	if (stack == NULL)
 		exit(EXIT_FAILURE);
 	tmp = *stack;
@@ -45,16 +45,16 @@ void printf_stack(stack_t **stack, unsigned int lineNumber)
 }
 
 /**
- * pop_ - Adds a node to the stack.
+ * _pop - Adds a node to the stack.
  * @stack: Pointer to a pointer pointing to top node of the stack.
- * @lineNumber: Interger representing the line number of of the opcode.
+ * @linenbr: Interger representing the line number of of the opcode.
  */
-void pop_(stack_t **stack, unsigned int lineNumber)
+void _pop(stack_t **stack, unsigned int linenbr)
 {
 	stack_t *tmp;
 
 	if (stack == NULL || *stack == NULL)
-		more_(7, lineNumber);
+		more_errs(7, linenbr);
 
 	tmp = *stack;
 	*stack = tmp->next;
@@ -64,13 +64,13 @@ void pop_(stack_t **stack, unsigned int lineNumber)
 }
 
 /**
- * printF_top - Prints the top node of the stack.
+ * prt_top - Prints the top node of the stack.
  * @stack: Pointer to a pointer pointing to top node of the stack.
- * @lineNumber: Interger representing the line number of of the opcode.
+ * @linenbr: Interger representing the line number of of the opcode.
  */
-void printF_top(stack_t **stack, unsigned int lineNumber)
+void prt_top(stack_t **stack, unsigned int linenbr)
 {
 	if (stack == NULL || *stack == NULL)
-		more_(6, lineNumber);
+		more_errs(6, linenbr);
 	printf("%d\n", (*stack)->n);
 }
